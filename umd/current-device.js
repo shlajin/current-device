@@ -155,6 +155,9 @@ device.ipod = function () {
 };
 
 device.ipad = function () {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
   var iPadOS13Up = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   return find('ipad') || iPadOS13Up;
 };
@@ -243,6 +246,9 @@ device.television = function () {
 };
 
 device.portrait = function () {
+  if (typeof window === 'undefined') {
+    return false;
+  }
   if (screen.orientation && Object.prototype.hasOwnProperty.call(window, 'onorientationchange')) {
     return includes(screen.orientation.type, 'portrait');
   }
@@ -253,6 +259,9 @@ device.portrait = function () {
 };
 
 device.landscape = function () {
+  if (typeof window === 'undefined') {
+    return false;
+  }
   if (screen.orientation && Object.prototype.hasOwnProperty.call(window, 'onorientationchange')) {
     return includes(screen.orientation.type, 'landscape');
   }
@@ -411,11 +420,11 @@ device.onChangeOrientation = function (cb) {
 // Detect whether device supports orientationchange event,
 // otherwise fall back to the resize event.
 var orientationEvent = 'resize';
-if (Object.prototype.hasOwnProperty.call(window, 'onorientationchange')) {
-  orientationEvent = 'orientationchange';
-}
 
 if (typeof window !== 'undefined') {
+  if (Object.prototype.hasOwnProperty.call(window, 'onorientationchange')) {
+    orientationEvent = 'orientationchange';
+  }
   // Listen for changes in orientation.
   if (window.addEventListener) {
     window.addEventListener(orientationEvent, handleOrientation, false);

@@ -13,6 +13,9 @@ device operating system (iOS, Android, Blackberry, Windows, MacOs, Firefox OS, M
 AppleTV, etc), orientation (Portrait vs. Landscape), and type (Tablet vs.
 Mobile).
 
+Module has been patched to enable SSR. For convenience, the dist has been added to the repo, so you can
+easily use it as a direct dependency in your `package.json`.
+
 [View the Demo &rarr;](https://matthewhudson.github.io/current-device/)
 
 ### EXAMPLES
