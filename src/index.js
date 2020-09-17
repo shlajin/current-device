@@ -1,19 +1,23 @@
 // Save the previous value of the device variable.
-const previousDevice = window.device
+const previousDevice = typeof window !== 'undefined' ? window.device : undefined
 
 const device = {}
 
 const changeOrientationList = []
 
 // Add device as a global object.
-window.device = device
+if (typeof window !== 'undefined') {window.device = device}
 
 // The <html> element.
-const documentElement = window.document.documentElement
+const documentElement = typeof window !== 'undefined'
+  ? window.document.documentElement
+  : undefined
 
 // The client user agent string.
 // Lowercase, so we can use the more efficient indexOf(), instead of Regex
-const userAgent = window.navigator.userAgent.toLowerCase()
+const userAgent = typeof window !== 'undefined'
+  ? window.navigator.userAgent.toLowerCase()
+  : undefined
 
 // Detectable television devices.
 const television = [
@@ -56,7 +60,7 @@ device.ipad = function() {
   const iPadOS13Up =
     navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
   return find('ipad') || iPadOS13Up
-};
+}
 
 device.android = function() {
   return !device.windows() && find('android')
@@ -193,7 +197,9 @@ device.landscape = function() {
 // Run device.js in noConflict mode,
 // returning the device variable to its previous owner.
 device.noConflict = function() {
-  window.device = previousDevice
+  if (typeof window !== 'undefined') {
+    window.device = previousDevice
+  }
   return this
 }
 
@@ -207,16 +213,19 @@ function includes(haystack, needle) {
 
 // Simple UA string search
 function find(needle) {
+  if (typeof window === 'undefined') {return false}
   return includes(userAgent, needle)
 }
 
 // Check if documentElement already has a given class.
 function hasClass(className) {
+  if (typeof window === 'undefined') {return false}
   return documentElement.className.match(new RegExp(className, 'i'))
 }
 
 // Add one or more CSS classes to the <html> element.
 function addClass(className) {
+  if (typeof window === 'undefined') {return}
   let currentClassNames = null
   if (!hasClass(className)) {
     currentClassNames = documentElement.className.replace(/^\s+|\s+$/g, '')
@@ -226,6 +235,7 @@ function addClass(className) {
 
 // Remove single CSS class from the <html> element.
 function removeClass(className) {
+  if (typeof window === 'undefined') {return}
   if (hasClass(className)) {
     documentElement.className = documentElement.className.replace(
       ` ${className}`,
@@ -238,62 +248,65 @@ function removeClass(className) {
 // ---------------------
 
 // Insert the appropriate CSS class based on the _user_agent.
+if (typeof window !== 'undefined') {
+  if (device.ios()) {
+    if (device.ipad()) {
+      addClass('ios ipad tablet')
+    } else if (device.iphone()) {
+      addClass('ios iphone mobile')
+    } else if (device.ipod()) {
+      addClass('ios ipod mobile')
+    }
+  } else if (device.macos()) {
+    addClass('macos desktop')
+  } else if (device.android()) {
+    if (device.androidTablet()) {
+      addClass('android tablet')
+    } else {
+      addClass('android mobile')
+    }
+  } else if (device.blackberry()) {
+    if (device.blackberryTablet()) {
+      addClass('blackberry tablet')
+    } else {
+      addClass('blackberry mobile')
+    }
+  } else if (device.windows()) {
+    if (device.windowsTablet()) {
+      addClass('windows tablet')
+    } else if (device.windowsPhone()) {
+      addClass('windows mobile')
+    } else {
+      addClass('windows desktop')
+    }
+  } else if (device.fxos()) {
+    if (device.fxosTablet()) {
+      addClass('fxos tablet')
+    } else {
+      addClass('fxos mobile')
+    }
+  } else if (device.meego()) {
+    addClass('meego mobile')
+  } else if (device.nodeWebkit()) {
+    addClass('node-webkit')
+  } else if (device.television()) {
+    addClass('television')
+  } else if (device.desktop()) {
+    addClass('desktop')
+  }
 
-if (device.ios()) {
-  if (device.ipad()) {
-    addClass('ios ipad tablet')
-  } else if (device.iphone()) {
-    addClass('ios iphone mobile')
-  } else if (device.ipod()) {
-    addClass('ios ipod mobile')
+  if (device.cordova()) {
+    addClass('cordova')
   }
-} else if (device.macos()) {
-  addClass('macos desktop')
-} else if (device.android()) {
-  if (device.androidTablet()) {
-    addClass('android tablet')
-  } else {
-    addClass('android mobile')
-  }
-} else if (device.blackberry()) {
-  if (device.blackberryTablet()) {
-    addClass('blackberry tablet')
-  } else {
-    addClass('blackberry mobile')
-  }
-} else if (device.windows()) {
-  if (device.windowsTablet()) {
-    addClass('windows tablet')
-  } else if (device.windowsPhone()) {
-    addClass('windows mobile')
-  } else {
-    addClass('windows desktop')
-  }
-} else if (device.fxos()) {
-  if (device.fxosTablet()) {
-    addClass('fxos tablet')
-  } else {
-    addClass('fxos mobile')
-  }
-} else if (device.meego()) {
-  addClass('meego mobile')
-} else if (device.nodeWebkit()) {
-  addClass('node-webkit')
-} else if (device.television()) {
-  addClass('television')
-} else if (device.desktop()) {
-  addClass('desktop')
 }
 
-if (device.cordova()) {
-  addClass('cordova')
-}
 
 // Orientation Handling
 // --------------------
 
 // Handle device orientation changes.
 function handleOrientation() {
+  if (typeof window === 'undefined') {return}
   if (device.landscape()) {
     removeClass('portrait')
     addClass('landscape')
@@ -325,13 +338,15 @@ if (Object.prototype.hasOwnProperty.call(window, 'onorientationchange')) {
   orientationEvent = 'orientationchange'
 }
 
-// Listen for changes in orientation.
-if (window.addEventListener) {
-  window.addEventListener(orientationEvent, handleOrientation, false)
-} else if (window.attachEvent) {
-  window.attachEvent(orientationEvent, handleOrientation)
-} else {
-  window[orientationEvent] = handleOrientation
+if (typeof window !== 'undefined') {
+  // Listen for changes in orientation.
+  if (window.addEventListener) {
+    window.addEventListener(orientationEvent, handleOrientation, false)
+  } else if (window.attachEvent) {
+    window.attachEvent(orientationEvent, handleOrientation)
+  } else {
+    window[orientationEvent] = handleOrientation
+  }
 }
 
 handleOrientation()
